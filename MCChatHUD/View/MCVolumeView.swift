@@ -58,21 +58,17 @@ class MCVolumeView: UIView {
                 context?.setLineWidth(3)
                 for (index, item) in soundMeters.enumerated() {
                     let barHeight = maxVolume - (Double(item) - noVoice)    //通过当前声音表计算应该显示的声音表高度
-                    
-                    // -70 + 46
-                    // -50 + 46
-                    let middle = VolumeViewHeight / 2 + 4
                 
-                    let reverseBarHeight = Double(VolumeViewHeight) + Double(item) - noVoice - maxVolume
-                    let width = Int(self.bounds.width)
+                    let reverseBarHeight = VolumeViewHeight + CGFloat(item) - CGFloat(noVoice) - CGFloat(maxVolume)
+                    let width = self.bounds.width
                     
-                    context?.move(to: CGPoint(x: width - (index * 6 + 3), y: VolumeViewHeight/2 - 4))
-                    context?.addLine(to: CGPoint(x: width - (index * 6 + 3), y: Int(barHeight)))
+                    context?.move(to: CGPoint(x: width - CGFloat(index * 6 + 3), y: VolumeViewHeight/2 - 4))
+                    context?.addLine(to: CGPoint(x: width - CGFloat(index * 6 + 3), y: CGFloat(barHeight)))
                     
                     print(barHeight)
        
-                    context?.move(to: CGPoint(x: width - (index * 6 + 3), y: VolumeViewHeight/2 + 4))
-                    context?.addLine(to: CGPoint(x: width - (index * 6 + 3), y: Int(reverseBarHeight)))
+                    context?.move(to: CGPoint(x: width - CGFloat(index * 6 + 3), y: VolumeViewHeight/2 + 4))
+                    context?.addLine(to: CGPoint(x: width - CGFloat(index * 6 + 3), y: reverseBarHeight))
                 }
             case .line:
                 context?.setLineWidth(1.5)

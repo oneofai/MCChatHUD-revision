@@ -24,6 +24,6 @@ internal let ScreenHeight = UIScreen.main.bounds.height
 internal let ScreenWidth = UIScreen.main.bounds.width
 
 /// 音量计高度
-internal let VolumeViewHeight = 180
+internal let VolumeViewHeight = HUDHeight
 /// 音量计宽度
 internal let VolumeViewWidth = HUDWidth

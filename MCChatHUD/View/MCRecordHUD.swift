@@ -30,7 +30,7 @@ class MCRecordHUD: UIView {
     //MARK: Methods
     public func startCounting() {
         progress.countingAnimate()
-        titleLabel.text = "Slide up to cancel"
+//        titleLabel.text = "Slide up to cancel"
     }
     
     public func stopCounting() {
@@ -47,7 +47,7 @@ class MCRecordHUD: UIView {
         backgroundColor = UIColor.clear
         addSubview(progress)
         
-        volume = MCVolumeView(frame: CGRect(x: 0, y: 0, width: Int(VolumeViewWidth), height: VolumeViewHeight), type: type)
+        volume = MCVolumeView(frame: CGRect(x: 0, y: 0, width: VolumeViewWidth, height: VolumeViewHeight), type: type)
         addSubview(volume)
         
         setUpLabel()
@@ -73,7 +73,7 @@ extension MCRecordHUD {
         titleLabel.font = UIFont.systemFont(ofSize: 12, weight: .bold)
         titleLabel.textAlignment = .center
         titleLabel.backgroundColor = UIColor.clear
-        titleLabel.frame = CGRect(x: Int(self.center.x - 50), y: VolumeViewHeight, width: 120, height: 14)
+        titleLabel.frame = CGRect(x: self.center.x - 50, y: VolumeViewHeight, width: 120, height: 14)
     }
     
     private func setUpShadow() {
