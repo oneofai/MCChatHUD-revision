@@ -12,10 +12,11 @@ class MCVolumeView: UIView {
 
     //MARK: Private Properties
     /// 声音表数组
-    private var soundMeters: [Float]!
+    private var soundMeters: [Float] = []
     
     private var type: HUDType = .bar
     
+    let threshold = Int(UIScreen.main.bounds.width / 6)
     //MARK: Init
     convenience init(frame: CGRect, type: HUDType) {
         self.init(frame: frame)
@@ -26,6 +27,15 @@ class MCVolumeView: UIView {
         super.init(frame: frame)
         backgroundColor = UIColor.clear
         contentMode = .redraw   //内容模式为重绘，因为需要多次重复绘制音量表
+        
+        switch type {
+        case .bar:
+            let line = UIView(frame: CGRect(x: 0, y: self.center.y - 1, width: self.bounds.width, height: 2))
+            line.backgroundColor = .white
+            addSubview(line)
+        default: break
+            
+        }
         NotificationCenter.default.addObserver(self, selector: #selector(updateView(notice:)), name: NSNotification.Name.init("updateMeters"), object: nil)
     }
     
@@ -34,7 +44,7 @@ class MCVolumeView: UIView {
     }
     
     override func draw(_ rect: CGRect) {
-        if soundMeters != nil && soundMeters.count > 0 {
+        if soundMeters.count > 0 {
             let context = UIGraphicsGetCurrentContext()
             context?.setLineCap(.round)
             context?.setLineJoin(.round)
@@ -46,10 +56,23 @@ class MCVolumeView: UIView {
             switch type {
             case .bar:
                 context?.setLineWidth(3)
-                for (index,item) in soundMeters.enumerated() {
+                for (index, item) in soundMeters.enumerated() {
                     let barHeight = maxVolume - (Double(item) - noVoice)    //通过当前声音表计算应该显示的声音表高度
-                    context?.move(to: CGPoint(x: index * 6 + 3, y: 40))
-                    context?.addLine(to: CGPoint(x: index * 6 + 3, y: Int(barHeight)))
+                    
+                    // -70 + 46
+                    // -50 + 46
+                    let middle = VolumeViewHeight / 2 + 4
+                
+                    let reverseBarHeight = Double(VolumeViewHeight) + Double(item) - noVoice - maxVolume
+                    let width = Int(self.bounds.width)
+                    
+                    context?.move(to: CGPoint(x: width - (index * 6 + 3), y: VolumeViewHeight/2 - 4))
+                    context?.addLine(to: CGPoint(x: width - (index * 6 + 3), y: Int(barHeight)))
+                    
+                    print(barHeight)
+       
+                    context?.move(to: CGPoint(x: width - (index * 6 + 3), y: VolumeViewHeight/2 + 4))
+                    context?.addLine(to: CGPoint(x: width - (index * 6 + 3), y: Int(reverseBarHeight)))
                 }
             case .line:
                 context?.setLineWidth(1.5)
@@ -64,8 +87,16 @@ class MCVolumeView: UIView {
     }
     
     @objc private func updateView(notice: Notification) {
-        soundMeters = notice.object as! [Float]
+        
+        let newMeters = notice.object as! [Float]
+        
+        soundMeters.insert(contentsOf: newMeters, at: 0)
         setNeedsDisplay()
+        if soundMeters.count > threshold {
+            soundMeters.removeLast(newMeters.count)
+        }
+        
+        
     }
 
 }

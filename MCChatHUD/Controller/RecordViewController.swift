@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Photos
 import AVFoundation
 
 class RecordViewController: UIViewController {
@@ -28,12 +29,12 @@ class RecordViewController: UIViewController {
                           AVEncoderAudioQualityKey : NSNumber(value: Int32(AVAudioQuality.medium.rawValue))]//声音质量
     /// 录音计时器
     private var timer: Timer?
-    /// 波形更新间隔
-    private let updateFequency = 0.05
+    /// 波形更新间隔, 单位: s
+    private let updateFequency = 0.5
     /// 声音数据数组
     private var soundMeters: [Float]!
     /// 声音数据数组容量
-    private let soundMeterCount = 10
+    private let soundMeterCount = 1
     /// 录音时间
     private var recordTime = 0.00
 
@@ -41,7 +42,8 @@ class RecordViewController: UIViewController {
         super.viewDidLoad()
         chatHUD = MCRecordHUD(type: HUDType)
         configRecord()
-        setupButtonEvent() 
+        
+        setupButtonEvent()
     }
 
     override func didReceiveMemoryWarning() {
@@ -187,5 +189,32 @@ extension RecordViewController {
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let soundFileURL = documentsDirectory.appendingPathComponent(currentFileName)
         return soundFileURL
+    }
+}
+
+extension PHAsset {
+    func getURL(ofPhotoWith mPhasset: PHAsset, completionHandler : @escaping ((_ responseURL : URL?) -> Void)) {
+        
+        if mPhasset.mediaType == .image {
+            let options: PHContentEditingInputRequestOptions = PHContentEditingInputRequestOptions()
+            options.canHandleAdjustmentData = {(adjustmeta: PHAdjustmentData) -> Bool in
+                return true
+            }
+            mPhasset.requestContentEditingInput(with: options, completionHandler: { (contentEditingInput, info) in
+                completionHandler(contentEditingInput!.fullSizeImageURL)
+            })
+        } else if mPhasset.mediaType == .video {
+            let options: PHVideoRequestOptions = PHVideoRequestOptions()
+            options.version = .original
+            PHImageManager.default().requestAVAsset(forVideo: mPhasset, options: options, resultHandler: { (asset, audioMix, info) in
+                if let urlAsset = asset as? AVURLAsset {
+                    let localVideoUrl = urlAsset.url
+                    completionHandler(localVideoUrl)
+                } else {
+                    completionHandler(nil)
+                }
+            })
+        }
+        
     }
 }
